@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="bioassembly" name="bio" type="biosystems_run.py" output="screen" required="true" />
+</launch>
