@@ -2,9 +2,19 @@
 // First we include the libraries
 #include <OneWire.h> 
 #include <DallasTemperature.h>
+#include "DHT.h"
 /********************************************************************/
 // Data wire is plugged into pin 2 on the Arduino 
 #define ONE_WIRE_BUS 2 
+//DHT 11 Pin
+#define DHTPIN 3     // what digital pin we're connected to
+/********************************************************************/
+//Select and initialise your DHT type
+// Uncomment whatever type you're using!
+#define DHTTYPE DHT11   // DHT 11
+//#define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
+//#define DHTTYPE DHT21   // DHT 21 (AM2301)
+DHT dht(DHTPIN, DHTTYPE);
 /********************************************************************/
 // Setup a oneWire instance to communicate with any OneWire devices  
 // (not just Maxim/Dallas temperature ICs) 
@@ -26,6 +36,7 @@ void setup(void)
  // Start up the library 
  pinMode(gas_sensor, INPUT); //Set gas sensor as input
  sensors.begin(); 
+ dht.begin();
 } 
 void loop(void) 
 { 
@@ -55,10 +66,22 @@ void loop(void)
   double ppm_log = (log10(ratio) - b) / m; //Get ppm value in linear scale according to the the ratio value
   double ppm = pow(10, ppm_log); //Convert ppm value to log scale
   sensor_val[1]=ppm_log;
+  
+  // Reading temperature or humidity takes about 250 milliseconds!
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  float h = dht.readHumidity();
+  
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h)) {
+    h=-1;
+  }
+  
   Serial.print("[");
   Serial.print(sensor_val[0]);
   Serial.print(",");
-  Serial.print(sensor_val[1]); 
+  Serial.print(sensor_val[1]);
+  Serial.print(";");
+  Serial.print(h);
   Serial.println("]");
    delay(1000); 
 } 
